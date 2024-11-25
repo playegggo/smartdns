@@ -1,6 +1,8 @@
-FROM alpine:3.19 as smartdns-builder
+# 构建阶段
+FROM alpine:latest AS smartdns-builder
 LABEL previous-stage=smartdns
 # 添加标签，镜像生成后可使用 docker rmi `docker images --filter label=previous-stage=smartdns -q` 删除中间层
+# 复制源码到工作目录
 COPY . /smartdns/
 RUN apk update && \
     apk add make gcc build-base linux-headers openssl-dev openssl-libs-static && \
@@ -12,10 +14,19 @@ RUN apk update && \
     mkdir -p /release/etc/smartdns/ && \
     cp /smartdns/src/smartdns /release/usr/sbin/
 
-FROM alpine:3.19
+
+# 运行阶段
+FROM alpine:latest
 # FROM scratch
 # 如果有进入镜像操作的必要，可以使用 busybox:musl 或 alpine。建议根据主机其他容器情况共用基础镜像
 ENV TZ="Asia/Shanghai"
+# 安装运行时依赖
+RUN apk add --no-cache \
+    libgcc \
+    libstdc++ \
+    openssl \
+    zlib
+
 COPY --from=smartdns-builder /release/ /
 EXPOSE 53/udp 53/tcp
 VOLUME "/etc/smartdns/"
