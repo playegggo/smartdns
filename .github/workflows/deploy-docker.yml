@@ -51,7 +51,7 @@ jobs:
            override CXXFLAGS +=-Iinclude
           EOF
           patch -p0 ./src/Makefile Makefile.patch
-          docker buildx build --no-cache --platform linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6 --push -t playegggo/smartdns-dynamics:check-edns -f Dockerfile.alpine .
+          docker buildx build --no-cache --platform linux/amd64,linux/arm64,linux/arm/v7,linux/arm/v6 --push -t playegggo/smartdns-dynamic:check-edns -f Dockerfile.alpine .
           
       - name: Login to Registry
         run: |
